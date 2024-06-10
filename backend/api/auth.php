@@ -21,8 +21,8 @@ $token = $data['token'];
 $playerId = $data['player_id'];
 
 // Verify the token with Openplanet
-$openplanetUrl = "https://openplanet.dev/api/verify_token"; // Replace with the actual Openplanet API endpoint
-$openplanetResponse = file_get_contents($openplanetUrl . "?token=" . urlencode($token));
+$openplanetUrl = "https://openplanet.dev/api/auth/validate"; // Replace with the actual Openplanet API endpoint
+$openplanetResponse = file_get_contents($openplanetUrl . "?token=" . urlencode($token) . "&secret=" . urlencode($openplanetSecret));
 $openplanetData = json_decode($openplanetResponse, true);
 
 if ($openplanetData && $openplanetData['player_id'] === $playerId) {
