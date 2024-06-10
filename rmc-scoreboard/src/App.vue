@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router';
-import Scoreboard from './components/Scoreboard.vue';
+import { RouterView } from 'vue-router';
+import Navbar from '@/components/Navbar.vue';
 </script>
 
 <template>
-  <header>
-    <nav>
-      <div class="wrapper">
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </div>
-    </nav>
+  <header class="flex flex-row justify-center">
+    <div class="align-center">
+      <Navbar />
+    </div>
   </header>
   <main>
     <RouterView />
@@ -20,7 +17,6 @@ import Scoreboard from './components/Scoreboard.vue';
 <style scoped>
 header {
   width: 100%;
-  background-color: #333;
   color: #fff;
   padding: 1rem 0;
 }
