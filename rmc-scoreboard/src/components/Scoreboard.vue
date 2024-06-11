@@ -30,7 +30,9 @@
         </div>
       </div>
     </div>
-    <div><p class="pl-4">{{ data.length }} results</p></div>
+    <div>
+      <p class="pl-4">{{ data.length }} results</p>
+    </div>
   </div>
 </template>
 
@@ -104,5 +106,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
