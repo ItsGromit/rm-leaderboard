@@ -13,8 +13,11 @@
     <div class="flex min-h-screen bg-pattern text-gray-900 lg_p-10 p-4">
       <Rules />
     </div>
-    <div class="flex min-h-screen bg-gradient lg:p-10 p-4">
+    <div class="flex min-h-screen bg-color lg:p-10 p-4">
       <Howto />
+    </div>
+    <div class="flex bg-footer border-t-8 border-black lg:p-10 p-4">
+      <About />
     </div>
   </div>
 </template>
@@ -23,14 +26,54 @@
 import Scoreboard from '@/components/Scoreboard.vue';
 import Rules from '@/components/Rules.vue';
 import Howto from '@/components/Howto.vue';
+import About from '@/components/About.vue';
 </script>
 
 <style scoped>
-.bg-gradient {
-  background: linear-gradient(to bottom, #000e27 66%, #112429 100%);
+.bg-footer {
+  background-color: #000e27;
+  opacity: 0.8;
+  background-image: linear-gradient(
+      30deg,
+      #01060e 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #01060e 87.5%,
+      #01060e
+    ),
+    linear-gradient(150deg, #01060e 12%, transparent 12.5%, transparent 87%, #01060e 87.5%, #01060e),
+    linear-gradient(30deg, #01060e 12%, transparent 12.5%, transparent 87%, #01060e 87.5%, #01060e),
+    linear-gradient(150deg, #01060e 12%, transparent 12.5%, transparent 87%, #01060e 87.5%, #01060e),
+    linear-gradient(
+      60deg,
+      #01060e77 25%,
+      transparent 25.5%,
+      transparent 75%,
+      #01060e77 75%,
+      #01060e77
+    ),
+    linear-gradient(
+      60deg,
+      #01060e77 25%,
+      transparent 25.5%,
+      transparent 75%,
+      #01060e77 75%,
+      #01060e77
+    );
+  background-size: 26px 46px;
+  background-position:
+    0 0,
+    0 0,
+    13px 23px,
+    13px 23px,
+    0 0,
+    13px 23px;
 }
-.bg-gradient-invert {
-  background: #efefef;
+.bg-gradient {
+  background: linear-gradient(to bottom, #000e27 50%, #112429 100%);
+}
+.bg-color {
+  background: #000e27;
 }
 
 .bg-pattern {

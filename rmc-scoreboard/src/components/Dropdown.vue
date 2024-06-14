@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown">
+  <div class="dropdown" ref="dropdown">
     <button @click="toggleDropdown" class="dropdown-toggle">
       {{ selectedOption ? selectedOption : 'Select an option' }}
       <v-icon name="fa-chevron-down" fill="gold" />
@@ -17,39 +17,45 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-export default defineComponent({
-  name: 'Dropdown',
-  props: {
-    options: {
-      type: Array as () => string[],
-      required: true
-    }
-  },
-  emits: ['update:selected'],
-  setup(props, { emit }) {
-    const isOpen = ref(false);
-    const selectedOption = ref<string | null>(props.options[0] || null);
+interface Props {
+  options: string[];
+}
 
-    const toggleDropdown = () => {
-      isOpen.value = !isOpen.value;
-    };
+const props = defineProps<Props>();
+const emit = defineEmits(['update:selected']);
 
-    const selectOption = (option: string) => {
-      selectedOption.value = option;
-      isOpen.value = false;
-      emit('update:selected', option);
-    };
+const isOpen = ref(false);
+const selectedOption = ref<string | null>(props.options[0] || null);
+const dropdown = ref<HTMLElement | null>(null);
 
-    return {
-      isOpen,
-      selectedOption,
-      toggleDropdown,
-      selectOption
-    };
+const toggleDropdown = () => {
+  isOpen.value = !isOpen.value;
+};
+
+const selectOption = (option: string) => {
+  selectedOption.value = option;
+  isOpen.value = false;
+  emit('update:selected', option);
+};
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (dropdown.value && !dropdown.value.contains(event.target as Node)) {
+    isOpen.value = false;
   }
+};
+
+onMounted(() => {
+  if (selectedOption.value) {
+    emit('update:selected', selectedOption.value);
+  }
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>
 
