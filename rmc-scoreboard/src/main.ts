@@ -7,8 +7,8 @@ import App from './App.vue';
 import router from './router';
 
 import { OhVueIcon, addIcons } from 'oh-vue-icons';
-import { FaTrophy } from 'oh-vue-icons/icons/fa';
-addIcons(FaTrophy);
+import { FaTrophy, FaChevronDown, FaSpinner } from 'oh-vue-icons/icons/fa';
+addIcons(FaTrophy, FaChevronDown, FaSpinner);
 
 const app = createApp(App);
 

@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col lg:flex-row gap-16">
+  <div class="flex flex-col lg:flex-row gap-16" id="rules" ref="rules">
     <div class="flex flex-col xl:flex-row align-middle max-w-fit">
       <div class="m-4 font-coolvetica text-xl">
         <h1 class="font-coolvetica text-4xl my-2 text-left">RMC Rules</h1>
         <p>The goal is to get as many author medals as possible on random maps within an hour!</p>
-        <br>
+        <br />
         <ul class="list-disc list-inside">
           <li>
             Use the
@@ -45,11 +45,11 @@
         <img src="@/assets/img/rmc.png" class="h-100 mt-10" />
       </div>
     </div>
-    <div class="flex flex-col xl:flex-row  align-middle max-w-fit">
+    <div class="flex flex-col xl:flex-row align-middle max-w-fit">
       <div class="m-4 font-coolvetica text-xl">
         <h1 class="font-coolvetica text-4xl my-2 text-left">RMS Rules</h1>
         <p>The goal is to get as many author medals as possible before the timer runs out!</p>
-        <br>
+        <br />
         <ul class="list-disc list-inside">
           <li>
             Use the
@@ -60,7 +60,10 @@
           <li>
             You can skip if:
             <ul class="list-disc list-inside ml-4">
-              <li>Any map for a cost: One minute of your maximum time (starting with 15 minutes) You can't exceed 15 minutes</li>
+              <li>
+                Any map for a cost: One minute of your maximum time (starting with 15 minutes) You
+                can't exceed 15 minutes
+              </li>
               <li>Maps with impossible Author times (e.g. broken PF maps, cheated ATs)</li>
               <li>Maps with old ice physics</li>
               <li>

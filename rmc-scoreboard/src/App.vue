@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
 import Navbar from '@/components/Navbar.vue';
+
+const handleScrollToSection = (section: string) => {
+  const element = document.getElementById(section);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
+};
 </script>
 
 <template>
   <header class="flex flex-row justify-center">
     <div class="align-center">
-      <Navbar />
+      <Navbar @scroll-to-section="handleScrollToSection" />
     </div>
   </header>
   <main>
@@ -49,7 +56,6 @@ nav a.router-link-exact-active {
 
 main {
   width: 100%;
-  padding: 2rem;
   box-sizing: border-box;
 }
 

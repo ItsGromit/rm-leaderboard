@@ -15,16 +15,36 @@ if ($conn->connect_error) {
 
 switch ($method) {
     case 'GET':
-        $sql = "SELECT timestamp, nickname, ats, skips, verified FROM rms";
-        $result = $conn->query($sql);
+        // Get the time parameter from the query string
+        $time = isset($_GET['time']) ? $_GET['time'] : 'All Time';
 
-        $rmsData = array();
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                $rmsData[] = $row;
-            }
+        // Prepare the SQL query
+        if ($time === 'All Time') {
+            $sql = "SELECT timestamp, nickname, ats, skips, verified FROM rms";
+        } else {
+            $sql = "SELECT timestamp, nickname, ats, skips, verified FROM rms WHERE YEAR(timestamp) = ?";
         }
-        echo json_encode($rmsData);
+
+        // Prepare the statement
+        if ($stmt = $conn->prepare($sql)) {
+            if ($time !== 'All Time') {
+                $stmt->bind_param("i", $time); // Bind the time parameter as an integer
+            }
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            $rmsData = array();
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $rmsData[] = $row;
+                }
+            }
+            echo json_encode($rmsData);
+
+            $stmt->close();
+        } else {
+            echo json_encode(["message" => "Error preparing statement: " . $conn->error]);
+        }
         break;
 
     case 'POST':

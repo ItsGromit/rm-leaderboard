@@ -1,24 +1,37 @@
+/* Import the font */
 @import url('https://fonts.googleapis.com/css?family=Raleway:200');
 
+/* Parent container with gradient background */
+.parent-container {
+  background: linear-gradient(to bottom, #000e27 66%, #112429 100%);
+  position: relative;
+  /* Make sure the parent is positioned relative */
+  padding: 20px;
+  /* Adjust as needed */
+}
+
+/* Gradient border container */
 .gradient-border {
   background-color: rgb(9, 8, 15);
   position: relative;
   border-radius: 3px;
   padding: 6px;
-  /* --borderWidth */
+  z-index: 1;
+  /* Ensure it stays above the parent */
 }
 
+/* Pseudo-element for the animated gradient border */
 .gradient-border:after {
   content: '';
   position: absolute;
   top: -3px;
-  /* calc(-1 * var(--borderWidth)) */
+  /* Adjust based on the padding */
   left: -3px;
-  /* calc(-1 * var(--borderWidth)) */
+  /* Adjust based on the padding */
   height: calc(100% + 6px);
-  /* calc(100% + var(--borderWidth) * 2) */
+  /* Adjust based on the padding */
   width: calc(100% + 6px);
-  /* calc(100% + var(--borderWidth) * 2) */
+  /* Adjust based on the padding */
   background: linear-gradient(
     60deg,
     #f79533,
@@ -31,8 +44,8 @@
     #6fba82
   );
   border-radius: 6px;
-  /* calc(2 * var(--borderWidth)) */
   z-index: -1;
+  /* Ensure it is below the .gradient-border content */
   animation: animatedgradient 8s ease alternate infinite;
   background-size: 300% 300%;
 }

@@ -1,6 +1,16 @@
 <template>
   <div>
-    <div v-for="(item, index) in data" :key="index" class="m-4 text-lg font-coolvetica">
+    <div class="flex flex-row gap-2 items-center">
+      <h1 class="font-coolvetica text-4xl pl-4 my-2 text-left">
+        {{ props.type?.toUpperCase() }} Records
+      </h1>
+      <Dropdown :options="options" @update:selected="handleTimeSelection" />
+      <Dropdown :options="optionsMedals" @update:selected="handleGoalSelection" />
+      <v-icon v-if="loading" name="fa-spinner" fill="white" animation="spin" />
+    </div>
+
+    <p class="pl-4">Survive as long as you can, every Author medal replenishes your timer!</p>
+    <div v-for="(item, index) in data" :key="index" class="scoreboard m-4 text-lg font-coolvetica">
       <div
         class="flex flex-row justify-between p-4 bg-slate-900"
         :class="{ 'gradient-border': index < 1 }"
@@ -37,8 +47,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
+import Dropdown from './Dropdown.vue';
 
 interface RecordData {
   timestamp: string;
@@ -53,6 +64,27 @@ const props = defineProps({
   type: String
 });
 
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: currentYear - 2023 + 1 }, (_, i) =>
+  (currentYear - i).toString()
+);
+
+const options = ref([...years, 'All Time']);
+const optionsMedals = ref(['AT', 'GOLD', 'SILVER', 'BRONZE']);
+const selectedTime = ref<string | null>(currentYear.toString());
+const selectedGoal = ref<string | null>('AT');
+
+const handleGoalSelection = (option: string) => {
+  selectedGoal.value = option;
+};
+
+const handleTimeSelection = (option: string) => {
+  selectedTime.value = option;
+};
+
+// DATA PART MAYBE PUT IN A STORE LATER ------------------------------------------------------------
+
+const loading = ref(false);
 const rmcData = ref<RecordData[]>([]);
 const rmsData = ref<RecordData[]>([]);
 
@@ -78,17 +110,26 @@ const data = computed(() => {
   return props.type === 'rmc' ? rmcData.value : rmsData.value;
 });
 
-const fetchData = async () => {
+const fetchData = async (time: string | null, goal: string | null) => {
+  loading.value = true;
   try {
+    rmcData.value = [];
+    rmsData.value = [];
     if (props.type === 'rmc') {
-      const response = await axios.get('https://www.flinkblog.de/RMC/dev/api/rmc.php');
+      const response = await axios.get('https://www.flinkblog.de/RMC/dev/api/rmc.php', {
+        params: { time, goal }
+      });
       rmcData.value = response.data;
     } else {
-      const response = await axios.get('https://www.flinkblog.de/RMC/dev/api/rms.php');
+      const response = await axios.get('https://www.flinkblog.de/RMC/dev/api/rms.php', {
+        params: { time, goal }
+      });
       rmsData.value = response.data;
     }
   } catch (error) {
     console.error(`Error fetching ${props.type} data:`, error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -102,7 +143,11 @@ const formatTimeStamp = (timestamp: string) => {
 };
 
 onMounted(() => {
-  fetchData();
+  fetchData(selectedTime.value, selectedGoal.value);
+});
+
+watch([selectedTime, selectedGoal], ([newTime, newGoal]) => {
+  fetchData(newTime, newGoal);
 });
 </script>
 

@@ -7,12 +7,20 @@
 @tailwind utilities;
 
 body {
-  background: linear-gradient(to bottom, #000e27 66%, #112429 100%);
+  background: #000e27;
 }
 
 #app {
   margin: 0 auto;
   font-weight: normal;
+}
+
+.bg-gradient {
+  background: linear-gradient(to bottom, #000e27 66%, #112429 100%);
+}
+
+.bg-gradient-invert {
+  background: linear-gradient(to top, #000e27 66%, #112429 100%);
 }
 
 @media (hover: hover) {
