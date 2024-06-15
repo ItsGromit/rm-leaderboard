@@ -14,8 +14,8 @@
 
       <!-- Logo -->
       <div class="flex-shrink-0 w-32 md:w-80">
-    <img src="@/assets/img/logo.webp" alt="Logo" class="w-full" />
-  </div>
+        <img src="@/assets/img/logo.webp" alt="Logo" class="w-full" />
+      </div>
 
       <!-- Right Links -->
       <div class="flex space-x-4">

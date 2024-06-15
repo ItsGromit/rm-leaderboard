@@ -55,7 +55,7 @@
   </div>
   <div class>
     <a href="https://youtube.com/FlinkTM" target="_blank">
-    <img src="@/assets/img/Flink LI Logo_transparent.png" width="128" height="128"/>
+      <img src="@/assets/img/Flink LI Logo_transparent.png" width="128" height="128" />
     </a>
   </div>
 </template>
