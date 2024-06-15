@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="flex flex-row gap-2 items-center">
-      <h1 class="font-coolvetica text-4xl pl-4 my-2 text-left">
+    <div class="flex flex-row gap-2 items-center m-2">
+      <h1 class="font-coolvetica text-4xl pl-2 my-2 text-left">
         {{ props.type?.toUpperCase() }} Records
       </h1>
       <Dropdown :options="options" @update:selected="handleTimeSelection" />
@@ -10,38 +10,64 @@
     </div>
 
     <p class="pl-4">Survive as long as you can, every Author medal replenishes your timer!</p>
-    <div v-for="(item, index) in data" :key="index" class="scoreboard m-4 text-lg font-coolvetica">
+    <div
+      v-for="(item, index) in paginatedData"
+      :key="index"
+      class="scoreboard m-2 my-4 md:m-4 text-sm md:text-lg font-coolvetica"
+    >
       <div
-        class="flex flex-row justify-between p-4 bg-slate-900"
-        :class="{ 'gradient-border': index < 1 }"
+        class="flex flex-col p-4 bg-slate-900 md:flex-row md:justify-between"
+        :class="{ 'gradient-border': index === 0 && currentPage === 1 }"
       >
-        <div class="flex-shrink-0 w-1/4 flex items-center">
-          <v-icon
-            v-if="index < 1"
-            name="fa-trophy"
-            fill="gold"
-            animation="pulse"
-            speed="slow"
-            class="mr-2"
-          />
-          <span>{{ item.nickname }}</span>
+        <div class="flex items-center justify-between md:justify-start md:w-full">
+          <div class="flex-shrink-0 w-1/12 flex items-center">
+            <span>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</span>
+          </div>
+          <div class="flex-shrink-0 w-1/4 flex items-center">
+            <v-icon
+              v-if="index === 0 && currentPage === 1"
+              name="fa-trophy"
+              fill="gold"
+              animation="pulse"
+              speed="slow"
+              class="mr-2"
+            />
+            <span>{{ item.nickname }}</span>
+          </div>
+          <div class="flex-shrink-0 w-1/4 flex flex-row items-center">
+            <img src="@/assets/img/at.png" class="h-6 mx-2" />
+            <span>{{ item.ats }}</span>
+            <img src="@/assets/img/gold.png" class="h-6 mx-2" />
+            <span>{{ item.golds ?? item.skips }}</span>
+          </div>
+          <div class="flex-shrink-0 w-1/12 flex items-center justify-end md:hidden">
+            <v-icon
+              title="verified"
+              v-if="item.verified"
+              name="fa-check"
+              fill="green"
+              class="mr-2"
+            />
+          </div>
         </div>
-        <div class="flex-shrink-0 w-1/4 flex flex-row items-center">
-          <img src="@/assets/img/at.png" class="h-6 mx-2" />
-          <span>{{ item.ats }}</span>
-          <img src="@/assets/img/gold.png" class="h-6 mx-2" />
-          <span>{{ item.golds ?? item.skips }}</span>
-        </div>
-        <div class="flex-shrink-0 w-1/4 flex items-center">
+        <div class="flex items-center justify-between md:w-1/4 mt-2 md:mt-0 self-end">
           <span>{{ formatTimeStamp(item.timestamp) }}</span>
-        </div>
-        <div class="flex-shrink-0 w-1/4 flex items-center justify-end">
-          <span>{{ item.verified }}</span>
+          <div class="flex-shrink-0 w-1/12 items-center justify-end hidden md:flex">
+            <v-icon
+              title="verified"
+              v-if="item.verified"
+              name="fa-check"
+              fill="green"
+              class="mr-2"
+            />
+          </div>
         </div>
       </div>
     </div>
-    <div>
-      <p class="pl-4">{{ data.length }} results</p>
+    <div class="flex justify-between p-4">
+      <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+      <span>Page {{ currentPage }} of {{ totalPages }} ({{ sortedData.length }} results)</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
     </div>
   </div>
 </template>
@@ -109,6 +135,44 @@ const headers = computed(() => {
 const data = computed(() => {
   return props.type === 'rmc' ? rmcData.value : rmsData.value;
 });
+
+const sortedData = computed(() => {
+  return data.value.slice().sort((a, b) => {
+    if (b.ats !== a.ats) {
+      return b.ats - a.ats;
+    } else if ((b.golds ?? 0) !== (a.golds ?? 0)) {
+      return (b.golds ?? 0) - (a.golds ?? 0);
+    } else {
+      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+    }
+  });
+});
+
+// Pagination state
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+
+const totalPages = computed(() => {
+  return Math.ceil(sortedData.value.length / itemsPerPage.value);
+});
+
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return sortedData.value.slice(start, end);
+});
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
 
 const fetchData = async (time: string | null, goal: string | null) => {
   loading.value = true;

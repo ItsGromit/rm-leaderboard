@@ -9,11 +9,16 @@
         <Scoreboard :type="'rms'" />
       </div>
     </div>
-
-    <div class="flex min-h-screen bg-pattern text-gray-900 lg_p-10 p-4">
+    <div class="flex flex-row justify-around items-center bg-gray-100 text-gray-900 lg_p-10 p-12 ">
+      <img src="@/assets/img/peepocheer.webp" />
+      <h1 class="md:text-2xl align-middle text-purple-700"> Help this project by <a target="_blank" href="https://www.twitch.tv/flinktm" class="underline text-blue-500 hover:text-blue-700">dropping a sub!</a> </h1>
+      <h1 class="md:text-2xl align-middle text-purple-700"> Or by <a target="_blank" "https://github.com/sponsors/GreepTheSheep" class="underline text-blue-500 hover:text-blue-700">becoming a sponsor!</a> </h1>
+      <img src="@/assets/img/peepocheer.webp" />
+    </div>
+    <div class="flex bg-pattern text-gray-900 lg_p-10 p-12">
       <Rules />
     </div>
-    <div class="flex min-h-screen bg-color lg:p-10 p-4">
+    <div class="flex bg-color lg:p-10 p-4">
       <Howto />
     </div>
     <div class="flex bg-footer border-t-8 border-black lg:p-10 p-4">
