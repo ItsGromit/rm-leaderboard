@@ -35,7 +35,7 @@ if ($token === $openplanetSecret) {
     // Retreive display name from tm.io
     $options = [
         "http" => [
-            "header" => "User-Agent: PHP/".phpversion()." RMC_API/1.0 (Greep)" // User-Agent header is important
+            "header" => "User-Agent: PHP/".phpversion()." RMC_API/1.0 (Greep & FlinkTM)" // User-Agent header is important
         ]
     ];
     $context = stream_context_create($options);
