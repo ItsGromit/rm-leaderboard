@@ -20,11 +20,13 @@ switch ($method) {
         // Get the time parameter from the query string
         $time = isset($_GET['year']) ? $_GET['year'] : 'all';
 
-        // Prepare the SQL query
-        $sql = "SELECT DISTINCT `rms`.*, `players`.`displayName` FROM `rms` INNER JOIN `players` ON `rms`.`accountId` = `players`.`accountId` GROUP BY `rms`.`accountId` ORDER BY `rms`.`goals` DESC, `rms`.`skips` DESC";
+        $whereSQL = "";
         if ($time !== 'all') {
-            $sql .= " WHERE YEAR(`submitTime`) = ?";
+            $whereSQL .= " WHERE YEAR(`submitTime`) = ?";
         }
+
+        // Prepare the SQL query
+        $sql = "SELECT DISTINCT `rms`.*, `players`.`displayName` FROM `rms` INNER JOIN `players` ON `rms`.`accountId` = `players`.`accountId`".$whereSQL." GROUP BY `rms`.`accountId` ORDER BY `rms`.`goals` DESC, `rms`.`skips` DESC";
 
         // Prepare the statement
         if ($stmt = $conn->prepare($sql)) {
