@@ -21,7 +21,7 @@ switch ($method) {
         $time = isset($_GET['year']) ? $_GET['year'] : 'all';
 
         // Prepare the SQL query
-        $sql = "SELECT `rmc`.*, `players`.`displayName` FROM `rmc` INNER JOIN `players` ON `rmc`.`accountId` = `players`.`accountId`";
+        $sql = "SELECT DISTINCT `rmc`.*, `players`.`displayName` FROM `rmc` INNER JOIN `players` ON `rmc`.`accountId` = `players`.`accountId` GROUP BY `rmc`.`accountId` ORDER BY `rmc`.`goals` DESC, `rmc`.`belowGoals` DESC";
         if ($time !== 'all') {
             $sql .= " WHERE YEAR(`submitTime`) = ?";
         }
