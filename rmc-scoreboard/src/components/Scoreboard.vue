@@ -35,7 +35,7 @@
             />
             <span>{{ item.displayName }}</span>
           </div>
-          <div class="flex-shrink-0 w-1/4 flex flex-row items-center">
+          <div class="flex-shrink-0 w-1/2 flex flex-row items-center">
             <img :src="objectiveImages.at" class="h-6 mx-2" />
             <span>{{ item.goals }}</span>
             
@@ -221,9 +221,7 @@ const objectiveImages = computed(() => {
       return { at: silverImage, secondary: bronzeImage };
     case 'bronze':
       return { at: bronzeImage, secondary: skipImage };
-      case 'bronze':
-      return { at: bronzeImage, secondary: skipImage };
-      case 'wr':
+    case 'wr':
       return { at: wrImage, secondary: atImage };
     default:
       return { at: atImage, secondary: goldImage };
