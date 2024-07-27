@@ -15,7 +15,7 @@
       <p class="mb-2">
         Made by
         <a
-          href="youtube.com/FlinkTM"
+          href="https://www.youtube.com/FlinkTM"
           target="_blank"
           class="underline text-blue-500 hover:text-blue-700"
           >FlinkTM</a

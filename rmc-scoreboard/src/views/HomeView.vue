@@ -24,7 +24,7 @@
         Or by
         <a
           target="_blank"
-          href="https://github.com/sponsors/GreepTheSheep"
+          href="https://patreon.com/Greep"
           class="underline text-blue-500 hover:text-blue-700"
           >becoming a sponsor!</a
         >
@@ -37,6 +37,9 @@
     <div class="flex bg-color lg:p-10 p-4">
       <Howto />
     </div>
+    <div class="flex bg-pattern text-gray-900 lg_p-10 p-12">
+      <Videos />
+    </div>
     <div class="flex bg-footer border-t-8 border-black lg:p-10 p-4">
       <About />
     </div>
@@ -48,6 +51,7 @@ import Scoreboard from '@/components/Scoreboard.vue';
 import Rules from '@/components/Rules.vue';
 import Howto from '@/components/Howto.vue';
 import About from '@/components/About.vue';
+import Videos from '@/components/Videos.vue';
 </script>
 
 <style scoped>
