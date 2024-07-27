@@ -35,10 +35,21 @@
             <span>{{ item.nickname }}</span>
           </div>
           <div class="flex-shrink-0 w-1/4 flex flex-row items-center">
-            <img src="@/assets/img/at.png" class="h-6 mx-2" />
-            <span>{{ item.ats }}</span>
-            <img src="@/assets/img/gold.png" class="h-6 mx-2" />
-            <span>{{ item.golds ?? item.skips }}</span>
+            <img :src="objectiveImages.at" class="h-6 mx-2" />
+            <span>{{ item.goals }}</span>
+            
+            <!-- For 'rmc' type -->
+            <template v-if="props.type === 'rmc'">
+              <img :src="objectiveImages.secondary" class="h-6 mx-2" />
+              <span>{{ isRMC(item) ? item.belowGoals : '' }}</span>
+            </template>
+
+            <!-- For 'rms' type -->
+            <template v-if="props.type === 'rms'">
+              <img :src="skipImage" class="h-6 mx-2" />
+              <span>{{ item.skips }}</span>
+              <span>&nbsp;|&nbsp;{{ formatTimeSurvived(isRMS(item) ? item.timeSurvived : 0) }}</span>
+            </template>
           </div>
           <div class="flex-shrink-0 w-1/12 flex items-center justify-end md:hidden">
             <v-icon
