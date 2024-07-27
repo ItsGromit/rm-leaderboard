@@ -49,7 +49,7 @@
             <template v-if="props.type === 'rms'">
               <img :src="skipImage" class="h-6 mx-2" />
               <span>{{ item.skips }}</span>
-              <span>&nbsp;|&nbsp;{{ formatTimeSurvived(isRMS(item) ? item.timeSurvived : 0) }}</span>
+              <span>{{ isRMS(item) && item.timeSurvived != null ? ("&nbsp;|&nbsp;" + formatTimeSurvived(item.timeSurvived)) : "" }}</span>
             </template>
           </div>
           <div class="flex-shrink-0 w-1/12 flex items-center justify-end md:hidden">
