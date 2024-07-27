@@ -49,11 +49,22 @@ if ($token === $openplanetSecret) {
 } else {
     // Verify the token with Openplanet
     $openplanetUrl = "https://openplanet.dev/api/auth/validate";
-    $openplanetResponse = file_get_contents($openplanetUrl . "?token=" . urlencode($token) . "&secret=" . urlencode($openplanetSecret));
+    $options = [
+        'http' => [
+            'method'  => "POST",
+            'header'  => "Content-Type: application/json; User-Agent: PHP/".phpversion()." RMC_API/1.0 (Greep & FlinkTM)",
+            'content' => [
+                'token' => $token,
+                'secret' => $openplanetSecret
+            ]
+        ]
+    ];
+    $context = stream_context_create($options);
+    $openplanetResponse = file_get_contents($openplanetUrl, false, $context);
     $openplanetData = json_decode($openplanetResponse, true);
 }
 
-if ($openplanetData && $openplanetData['player_id'] === $playerId) {
+if (isset($openplanetData) && $openplanetData['player_id'] === $playerId) {
 
     // Player is connected with Openplanet
     // Check if the player is already in the database
