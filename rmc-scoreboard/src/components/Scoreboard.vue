@@ -5,11 +5,12 @@
         {{ props.type?.toUpperCase() }} Records
       </h1>
       <Dropdown :options="options" @update:selected="handleTimeSelection" />
-      <Dropdown :options="optionsMedals" @update:selected="handleGoalSelection" />
+      <Dropdown :options="optionsObjective" @update:selected="handleObjectiveSelection" />
       <v-icon v-if="loading" name="fa-spinner" fill="white" animation="spin" />
     </div>
 
-    <p class="pl-4">Survive as long as you can, every Author medal replenishes your timer!</p>
+    <p class="pl-4">{{ descriptionText }}</p>
+    
     <div
       v-for="(item, index) in paginatedData"
       :key="index"
@@ -32,7 +33,7 @@
               speed="slow"
               class="mr-2"
             />
-            <span>{{ item.nickname }}</span>
+            <span>{{ item.displayName }}</span>
           </div>
           <div class="flex-shrink-0 w-1/4 flex flex-row items-center">
             <img :src="objectiveImages.at" class="h-6 mx-2" />
@@ -52,33 +53,22 @@
             </template>
           </div>
           <div class="flex-shrink-0 w-1/12 flex items-center justify-end md:hidden">
-            <v-icon
-              title="verified"
-              v-if="item.verified"
-              name="fa-check"
-              fill="green"
-              class="mr-2"
-            />
+            <!-- space for icon links -->
           </div>
         </div>
         <div class="flex items-center justify-between md:w-1/4 mt-2 md:mt-0 self-end">
-          <span>{{ formatTimeStamp(item.timestamp) }}</span>
+          <span>{{ formatTimeStamp(item.submitTime) }}</span>
           <div class="flex-shrink-0 w-1/12 items-center justify-end hidden md:flex">
-            <v-icon
-              title="verified"
-              v-if="item.verified"
-              name="fa-check"
-              fill="green"
-              class="mr-2"
-            />
+            <!-- space for icon links -->
           </div>
         </div>
       </div>
     </div>
+    
     <div class="flex justify-between p-4">
-      <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-      <span>Page {{ currentPage }} of {{ totalPages }} ({{ sortedData.length }} results)</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+      <button v-if="currentPage > 1" @click="prevPage">Previous</button>
+      <span v-if="totalPages > 1">Page {{ currentPage }} of {{ totalPages }} ({{ sortedData.length }} results)</span>
+      <button v-if="currentPage < totalPages" @click="nextPage">Next</button>
     </div>
   </div>
 </template>
@@ -88,58 +78,55 @@ import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import Dropdown from './Dropdown.vue';
 
-interface RecordData {
-  timestamp: string;
-  nickname: string;
-  ats: number;
-  golds?: number;
-  skips?: number;
-  verified: number;
-}
+import type { RecordDataRMC, RecordDataRMS } from '@/types';
 
-const props = defineProps({
-  type: String
-});
+// Import images
+import atImage from '@/assets/img/at.png';
+import goldImage from '@/assets/img/gold.png';
+import silverImage from '@/assets/img/silver.png';
+import bronzeImage from '@/assets/img/bronze.png';
+import skipImage from '@/assets/img/skip.png';
+import wrImage from '@/assets/img/wr.png';
+import { isRMC, isRMS, formatTimeStamp, formatTimeSurvived } from '@/utils';
 
+
+// Define props
+const props = defineProps<{
+  type: 'rmc' | 'rms';
+}>();
+
+// Initialize reactive variables
 const currentYear = new Date().getFullYear();
-const years = Array.from({ length: currentYear - 2023 + 1 }, (_, i) =>
+const years = Array.from({ length: currentYear - 2021 + 1 }, (_, i) =>
   (currentYear - i).toString()
 );
 
-const options = ref([...years, 'All Time']);
-const optionsMedals = ref(['AT', 'GOLD', 'SILVER', 'BRONZE']);
+const options = ref([...years, 'all']);
+const optionsObjective = ref(['author', 'gold', 'silver', 'bronze', 'wr']);
+
 const selectedTime = ref<string | null>(currentYear.toString());
-const selectedGoal = ref<string | null>('AT');
-
-const handleGoalSelection = (option: string) => {
-  selectedGoal.value = option;
-};
-
-const handleTimeSelection = (option: string) => {
-  selectedTime.value = option;
-};
-
-// DATA PART MAYBE PUT IN A STORE LATER ------------------------------------------------------------
+const selectedObjective = ref<string | null>('author');
 
 const loading = ref(false);
-const rmcData = ref<RecordData[]>([]);
-const rmsData = ref<RecordData[]>([]);
+const rmcData = ref<RecordDataRMC[]>([]);
+const rmsData = ref<RecordDataRMS[]>([]);
 
+// Define computed properties
 const headers = computed(() => {
   return props.type === 'rmc'
     ? [
-        { title: 'Nickname', key: 'nickname' },
-        { title: 'ATS', key: 'ats' },
-        { title: 'Golds', key: 'golds' },
-        { title: 'Timestamp', key: 'timestamp' },
+        { title: 'DisplayName', key: 'displayName' },
+        { title: 'Goals', key: 'goals' },
+        { title: 'Below Goals', key: 'belowGoals' },
+        { title: 'SubmitTime', key: 'submitTime' },
         { title: 'Verified', key: 'verified' }
       ]
     : [
-        { title: 'Nickname', key: 'nickname' },
-        { title: 'ATS', key: 'ats' },
+        { title: 'DisplayName', key: 'displayName' },
+        { title: 'Goals', key: 'goals' },
         { title: 'Skips', key: 'skips' },
-        { title: 'Timestamp', key: 'timestamp' },
-        { title: 'Verified', key: 'verified' }
+        { title: 'SubmitTime', key: 'submitTime' },
+        { title: 'Time Survived', key: 'timeSurvived' }
       ];
 });
 
@@ -147,21 +134,34 @@ const data = computed(() => {
   return props.type === 'rmc' ? rmcData.value : rmsData.value;
 });
 
-const sortedData = computed(() => {
-  return data.value.slice().sort((a, b) => {
-    if (b.ats !== a.ats) {
-      return b.ats - a.ats;
-    } else if ((b.golds ?? 0) !== (a.golds ?? 0)) {
-      return (b.golds ?? 0) - (a.golds ?? 0);
-    } else {
-      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-    }
-  });
+const filteredData = computed(() => {
+  return data.value.filter(item => selectedObjective.value === 'all' || item.objective === selectedObjective.value);
 });
 
-// Pagination state
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
+const sortedData = computed(() => {
+  return filteredData.value.slice().sort((a, b) => {
+    if (props.type === 'rmc') {
+      if (isRMC(a) && isRMC(b)) {
+        if (b.goals !== a.goals) {
+          return b.goals - a.goals;
+        } else if ((b.belowGoals ?? 0) !== (a.belowGoals ?? 0)) {
+          return (b.belowGoals ?? 0) - (a.belowGoals ?? 0);
+        } else {
+          return new Date(a.submitTime).getTime() - new Date(b.submitTime).getTime();
+        }
+      }
+    } else if (props.type === 'rms') {
+      if (isRMS(a) && isRMS(b)) {
+        if (b.goals !== a.goals) {
+          return b.goals - a.goals;
+        } else {
+          return b.timeSurvived - a.timeSurvived;
+        }
+      }
+    }
+    return 0; // Default return if types are not matched
+  });
+});
 
 const totalPages = computed(() => {
   return Math.ceil(sortedData.value.length / itemsPerPage.value);
@@ -172,6 +172,10 @@ const paginatedData = computed(() => {
   const end = start + itemsPerPage.value;
   return sortedData.value.slice(start, end);
 });
+
+// Pagination methods
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -185,19 +189,20 @@ const prevPage = () => {
   }
 };
 
-const fetchData = async (time: string | null, goal: string | null) => {
+// Fetch data from API
+const fetchData = async (year: string | null, goal: string | null) => {
   loading.value = true;
   try {
     rmcData.value = [];
     rmsData.value = [];
     if (props.type === 'rmc') {
       const response = await axios.get('https://www.flinkblog.de/RMC/dev/api/rmc.php', {
-        params: { time, goal }
+        params: { year }
       });
       rmcData.value = response.data;
     } else {
       const response = await axios.get('https://www.flinkblog.de/RMC/dev/api/rms.php', {
-        params: { time, goal }
+        params: { year }
       });
       rmsData.value = response.data;
     }
@@ -208,22 +213,45 @@ const fetchData = async (time: string | null, goal: string | null) => {
   }
 };
 
-const formatTimeStamp = (timestamp: string) => {
-  const date = new Date(timestamp);
-  return date.toLocaleString('en-EN', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
+const objectiveImages = computed(() => {
+  switch (selectedObjective.value) {
+    case 'gold':
+      return { at: goldImage, secondary: silverImage };
+    case 'silver':
+      return { at: silverImage, secondary: bronzeImage };
+    case 'bronze':
+      return { at: bronzeImage, secondary: skipImage };
+      case 'bronze':
+      return { at: bronzeImage, secondary: skipImage };
+      case 'wr':
+      return { at: wrImage, secondary: atImage };
+    default:
+      return { at: atImage, secondary: goldImage };
+  }
+});
+// Event handlers
+const handleTimeSelection = (selected: string) => {
+  selectedTime.value = selected;
+  fetchData(selectedTime.value, selectedObjective.value);
 };
 
-onMounted(() => {
-  fetchData(selectedTime.value, selectedGoal.value);
+const handleObjectiveSelection = (selected: string) => {
+  selectedObjective.value = selected;
+  fetchData(selectedTime.value, selectedObjective.value);
+};
+
+const descriptionText = computed(() => {
+  return props.type === 'rmc'
+    ? 'Collect as many medals as possible within an hour!'
+    : 'Survive as long as you can, every Author medal replenishes your timer!';
 });
 
-watch([selectedTime, selectedGoal], ([newTime, newGoal]) => {
+// Watchers
+onMounted(() => {
+  fetchData(selectedTime.value, selectedObjective.value);
+});
+
+watch([selectedTime, selectedObjective], ([newTime, newGoal]) => {
   fetchData(newTime, newGoal);
 });
 </script>
-
-<style scoped></style>
