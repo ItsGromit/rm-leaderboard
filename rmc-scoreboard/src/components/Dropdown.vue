@@ -1,7 +1,7 @@
 <template>
   <div class="dropdown" ref="dropdown">
     <button @click="toggleDropdown" class="dropdown-toggle">
-      {{ selectedOption ? selectedOption : 'Select an option' }}
+      {{ selectedOption ? selectedOption.charAt(0).toUpperCase() + selectedOption.slice(1) : 'Select an option' }}
       <v-icon name="fa-chevron-down" fill="gold" />
     </button>
     <ul v-if="isOpen" class="dropdown-menu">
@@ -11,7 +11,7 @@
         @click="selectOption(option)"
         class="dropdown-item"
       >
-        {{ option }}
+        {{ option.charAt(0).toUpperCase() + option.slice(1)}}
       </li>
     </ul>
   </div>
