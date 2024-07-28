@@ -2,6 +2,7 @@
 export interface RecordDataRMC {
     submitTime: string;
     displayName: string;
+    accountId: string;
     objective: 'author' | 'gold' | 'silver' | 'bronze';
     goals: number;
     belowGoals: number;
@@ -12,6 +13,7 @@ export interface RecordDataRMC {
 export interface RecordDataRMS {
     submitTime: string;
     displayName: string;
+    accountId: string;
     objective: 'author' | 'gold' | 'silver' | 'bronze';
     goals: number;
     skips: number;
