@@ -19,10 +19,11 @@ switch ($method) {
     case 'GET':
         // Get the time parameter from the query string
         $time = isset($_GET['year']) ? $_GET['year'] : 'all';
+        $objective = isset($_GET['objective']) ? $_GET['objective'] : 'author';
 
-        $whereSQL = "";
+        $whereSQL = " WHERE `rmc`.`objective` = ?";
         if ($time !== 'all') {
-            $whereSQL .= " WHERE YEAR(`submitTime`) = ?";
+            $whereSQL .= " AND YEAR(`submitTime`) = ?";
         }
 
         // Prepare the SQL query
@@ -31,7 +32,9 @@ switch ($method) {
         // Prepare the statement
         if ($stmt = $conn->prepare($sql)) {
             if ($time !== 'all') {
-                $stmt->bind_param("i", $time); // Bind the time parameter as an integer
+                $stmt->bind_param("si", $objective, $time);
+            } else {
+                $stmt->bind_param("s", $objective);
             }
             $stmt->execute();
             $result = $stmt->get_result();
