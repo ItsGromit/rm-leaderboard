@@ -105,7 +105,7 @@ switch ($method) {
         $stmt->bind_param("ssiii", $accountId, $objective, $goals, $skips, $timeSurvived);
 
         if ($stmt->execute()) {
-            echo json_encode(["success" => true, "message" => "New record created successfully"]);
+            echo json_encode(["success" => true, "message" => "Record uploaded successfully to the leaderboard"]);
         } else {
             http_response_code(500);
             echo json_encode(["success" => false, "message" => "Error: " . $stmt->error]);
