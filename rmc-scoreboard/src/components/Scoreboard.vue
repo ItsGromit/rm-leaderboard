@@ -196,12 +196,12 @@ const fetchData = async (year: string | null, goal: string | null) => {
     rmcData.value = [];
     rmsData.value = [];
     if (props.type === 'rmc') {
-      const response = await axios.get('https://www.flinkblog.de/RMC/dev/api/rmc.php', {
+      const response = await axios.get('https://www.flinkblog.de/RMC/api/rmc.php', {
         params: { year }
       });
       rmcData.value = response.data;
     } else {
-      const response = await axios.get('https://www.flinkblog.de/RMC/dev/api/rms.php', {
+      const response = await axios.get('https://www.flinkblog.de/RMC/api/rms.php', {
         params: { year }
       });
       rmsData.value = response.data;
