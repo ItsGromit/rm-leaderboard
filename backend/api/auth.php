@@ -49,70 +49,79 @@ if ($token === $openplanetSecret) {
 } else {
     // Verify the token with Openplanet
     $openplanetUrl = "https://openplanet.dev/api/auth/validate";
-    $options = [
-        'http' => [
-            'method'  => "POST",
-            'header'  => "Content-Type: application/json; User-Agent: PHP/".phpversion()." RMC_API/1.0 (Greep & FlinkTM)",
-            'content' => [
-                'token' => $token,
-                'secret' => $openplanetSecret
-            ]
-        ]
-    ];
+    $postdata = http_build_query(
+        array(
+            'token' => $token,
+            'secret' => $openplanetSecret
+        )
+    );
+    $options = array('http' =>
+        array(
+            'method'  => 'POST',
+            'header'  => 'Content-Type: application/x-www-form-urlencoded; User-Agent: PHP/'.phpversion().' RMC_API/1.0 (Greep & FlinkTM)',
+            'content' => $postdata
+        )
+    );
     $context = stream_context_create($options);
     $openplanetResponse = file_get_contents($openplanetUrl, false, $context);
     $openplanetData = json_decode($openplanetResponse, true);
 }
 
-if (isset($openplanetData) && $openplanetData['player_id'] === $playerId) {
+echo json_encode($openplanetData);
 
-    // Player is connected with Openplanet
-    // Check if the player is already in the database
-    $playerExists = false;
-    if ($stmt = $conn->prepare("SELECT * FROM `players` WHERE `accountId` = ?")) {
-        $stmt->bind_param("s", $openplanetData['player_id']);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $playerExists = $result->num_rows == 1;
-        $stmt->close();
-    } else {
-        http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Error preparing statement: " . $conn->error]);
-        $conn->close();
-        die();
-    }
+// if (isset($openplanetData) && $openplanetData['player_id'] === $playerId) {
 
-    if ($playerExists == false) {
-        $sql = "INSERT INTO `players` (`accountId`, `displayName`, `lastLogon`, `lastPluginVersion`, `lastToken`) VALUES (?, ?, now(), ?, ?)";
-        if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("ssss", $openplanetData['player_id'], $openplanetData['player_name'], $pluginVersion, $token);
-            $stmt->execute();
-            $stmt->close();
-        } else {
-            http_response_code(500);
-            echo json_encode(["success" => false, "message" => "Error preparing statement: " . $conn->error]);
-            $conn->close();
-            die();
-        }
-    } else {
-        $sql = "UPDATE `players` SET `displayName` = ?, `lastLogon` = now(), `lastPluginVersion` = ?, `lastToken` = ? WHERE `accountId` = ?";
-        if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("ssss", $openplanetData['player_name'], $pluginVersion, $token, $openplanetData['player_id']);
-            $stmt->execute();
-            $stmt->close();
-        } else {
-            http_response_code(500);
-            echo json_encode(["success" => false, "message" => "Error preparing statement: " . $conn->error]);
-            $conn->close();
-            die();
-        }
-    }
+//     // Player is connected with Openplanet
+//     // Check if the player is already in the database
+//     $playerExists = false;
+//     if ($stmt = $conn->prepare("SELECT * FROM `players` WHERE `accountId` = ?")) {
+//         $stmt->bind_param("s", $openplanetData['player_id']);
+//         $stmt->execute();
+//         $result = $stmt->get_result();
+//         $playerExists = $result->num_rows == 1;
+//         $stmt->close();
+//     } else {
+//         http_response_code(500);
+//         echo json_encode(["success" => false, "message" => "Error preparing statement: " . $conn->error]);
+//         $conn->close();
+//         die();
+//     }
 
-    echo json_encode(["success" => true, "message" => "Authenticated successfully", "player_name" => $openplanetData['player_name']]);
-} else {
-    http_response_code(401);
-    echo json_encode(["success" => false, "message" => "Authentication failed"]);
-    $conn->close();
-    die();
-}
+//     if ($playerExists == false) {
+//         $sql = "INSERT INTO `players` (`accountId`, `displayName`, `lastLogon`, `lastPluginVersion`, `lastToken`) VALUES (?, ?, now(), ?, ?)";
+//         if ($stmt = $conn->prepare($sql)) {
+//             $stmt->bind_param("ssss", $openplanetData['player_id'], $openplanetData['player_name'], $pluginVersion, $token);
+//             $stmt->execute();
+//             $stmt->close();
+//         } else {
+//             http_response_code(500);
+//             echo json_encode(["success" => false, "message" => "Error preparing statement: " . $conn->error]);
+//             $conn->close();
+//             die();
+//         }
+//     } else {
+//         $sql = "UPDATE `players` SET `displayName` = ?, `lastLogon` = now(), `lastPluginVersion` = ?, `lastToken` = ? WHERE `accountId` = ?";
+//         if ($stmt = $conn->prepare($sql)) {
+//             $stmt->bind_param("ssss", $openplanetData['player_name'], $pluginVersion, $token, $openplanetData['player_id']);
+//             $stmt->execute();
+//             $stmt->close();
+//         } else {
+//             http_response_code(500);
+//             echo json_encode(["success" => false, "message" => "Error preparing statement: " . $conn->error]);
+//             $conn->close();
+//             die();
+//         }
+//     }
+
+//     echo json_encode(["success" => true, "message" => "Authenticated successfully", "player_name" => $openplanetData['player_name']]);
+// } else {
+//     http_response_code(401);
+//     $errMsg = "Authentication failed";
+//     if (isset($openplanetData) && isset($openplanetData["error"])) {
+//         $errMsg .= ": ".$openplanetData["error"];
+//     }
+//     echo json_encode(["success" => false, "message" => $errMsg]);
+//     $conn->close();
+//     die();
+// }
 ?>
