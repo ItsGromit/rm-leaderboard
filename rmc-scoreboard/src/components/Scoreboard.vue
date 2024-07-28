@@ -33,7 +33,7 @@
               speed="slow"
               class="mr-2"
             />
-            <span>{{ item.displayName }}</span>
+            <span><a class="no-underline hover:bg-transparent" :href="'https://www.trackmania.io/#/player/' + item.accountId" target="_blank">{{ item.displayName }}</a></span>
           </div>
           <div class="flex-shrink-0 w-1/2 flex flex-row items-center">
             <img :src="objectiveImages.at" class="h-6 mx-2" />
