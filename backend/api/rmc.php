@@ -27,7 +27,7 @@ switch ($method) {
         }
 
         // Prepare the SQL query
-        $sql = "SELECT DISTINCT `rmc`.*, `players`.`displayName` FROM `rmc` INNER JOIN `players` ON `rmc`.`accountId` = `players`.`accountId`".$whereSQL." GROUP BY `rmc`.`accountId` ORDER BY `rmc`.`goals` DESC, `rmc`.`belowGoals` DESC";
+        $sql = "SELECT `rmc`.`accountId`, `rmc`.`id`, `rmc`.`objective`, `rmc`.`submitTime`, MAX(`rmc`.`goals`) as goals, `rmc`.`belowGoals`, `rmc`.`videoLink`, `players`.`displayName` FROM `rmc` INNER JOIN `players` ON `rmc`.`accountId` = `players`.`accountId`".$whereSQL." GROUP BY `rmc`.`accountId` ORDER BY `goals` DESC, `rmc`.`belowGoals` DESC";
 
         // Prepare the statement
         if ($stmt = $conn->prepare($sql)) {
