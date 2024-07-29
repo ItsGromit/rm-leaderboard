@@ -10,7 +10,10 @@
     </div>
 
     <p class="pl-4">{{ descriptionText }}</p>
-    
+      
+    <div v-if="paginatedData.length === 0" class="pl-4">
+      <p class="italic p-8 text-center">No entries</p>
+    </div>
     <div
       v-for="(item, index) in paginatedData"
       :key="index"
