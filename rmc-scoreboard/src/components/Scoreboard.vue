@@ -89,7 +89,6 @@ import skipImage from '@/assets/img/skip.png';
 import wrImage from '@/assets/img/wr.png';
 import { isRMC, isRMS, formatTimeStamp, formatTimeSurvived } from '@/utils';
 
-
 // Define props
 const props = defineProps<{
   type: 'rmc' | 'rms';
@@ -134,12 +133,8 @@ const data = computed(() => {
   return props.type === 'rmc' ? rmcData.value : rmsData.value;
 });
 
-const filteredData = computed(() => {
-  return data.value.filter(item => selectedObjective.value === 'all' || item.objective === selectedObjective.value);
-});
-
 const sortedData = computed(() => {
-  return filteredData.value.slice().sort((a, b) => {
+  return data.value.slice().sort((a, b) => {
     if (props.type === 'rmc') {
       if (isRMC(a) && isRMC(b)) {
         if (b.goals !== a.goals) {
@@ -190,19 +185,19 @@ const prevPage = () => {
 };
 
 // Fetch data from API
-const fetchData = async (year: string | null, goal: string | null) => {
+const fetchData = async (year: string | null, objective: string | null) => {
   loading.value = true;
   try {
     rmcData.value = [];
     rmsData.value = [];
     if (props.type === 'rmc') {
       const response = await axios.get('https://www.flinkblog.de/RMC/api/rmc.php', {
-        params: { year }
+        params: { year, objective }
       });
       rmcData.value = response.data;
     } else {
       const response = await axios.get('https://www.flinkblog.de/RMC/api/rms.php', {
-        params: { year }
+        params: { year, objective }
       });
       rmsData.value = response.data;
     }
@@ -249,7 +244,7 @@ onMounted(() => {
   fetchData(selectedTime.value, selectedObjective.value);
 });
 
-watch([selectedTime, selectedObjective], ([newTime, newGoal]) => {
-  fetchData(newTime, newGoal);
+watch([selectedTime, selectedObjective], ([newTime, newObjective]) => {
+  fetchData(newTime, newObjective);
 });
 </script>
