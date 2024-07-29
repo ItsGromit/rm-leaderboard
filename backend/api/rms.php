@@ -32,9 +32,9 @@ switch ($method) {
         // Prepare the statement
         if ($stmt = $conn->prepare($sql)) {
             if ($time !== 'all') {
-                $stmt->bind_param("i", $time);
-            } else {
                 $stmt->bind_param("si", $objective, $time);
+            } else {
+                $stmt->bind_param("s", $objective);
             }
             $stmt->execute();
             $result = $stmt->get_result();
@@ -56,7 +56,6 @@ switch ($method) {
         break;
 
     case 'POST':
-
         // Check player token (in Authorization header)
         $headers = getallheaders();
         if (!array_key_exists('Authorization', $headers)) {
