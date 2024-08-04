@@ -21,18 +21,47 @@ switch ($method) {
         $time = isset($_GET['year']) ? $_GET['year'] : 'all';
         $objective = isset($_GET['objective']) ? $_GET['objective'] : 'author';
 
-        $whereSQL = " WHERE `rms`.`objective` = ?";
         if ($time !== 'all') {
-            $whereSQL .= " AND YEAR(`submitTime`) = ?";
+            // Query for a specific year
+            $sql = "
+                SELECT rms.*, players.displayName
+                FROM `rms`
+                INNER JOIN `players` ON `rms`.`accountId` = `players`.`accountId`
+                INNER JOIN (
+                    SELECT `accountId`, MAX(`goals`) AS maxGoals, MIN(`skips`) AS minSkips, MAX(`timeSurvived`) AS maxTimeSurvived
+                    FROM `rms`
+                    WHERE `objective` = ? AND YEAR(`submitTime`) = ?
+                    GROUP BY `accountId`
+                ) AS best_runs ON `rms`.`accountId` = best_runs.`accountId`
+                AND `rms`.`goals` = best_runs.`maxGoals`
+                AND `rms`.`skips` = best_runs.`minSkips`
+                AND `rms`.`timeSurvived` = best_runs.`maxTimeSurvived`
+                WHERE YEAR(`rms`.`submitTime`) = ?
+                ORDER BY `rms`.`goals` DESC, `rms`.`skips` ASC, `rms`.`timeSurvived` DESC;
+            ";
+        } else {
+            // Query across all years
+            $sql = "
+                SELECT rms.*, players.displayName
+                FROM `rms`
+                INNER JOIN `players` ON `rms`.`accountId` = `players`.`accountId`
+                INNER JOIN (
+                    SELECT `accountId`, MAX(`goals`) AS maxGoals, MIN(`skips`) AS minSkips, MAX(`timeSurvived`) AS maxTimeSurvived
+                    FROM `rms`
+                    WHERE `objective` = ?
+                    GROUP BY `accountId`
+                ) AS best_runs ON `rms`.`accountId` = best_runs.`accountId`
+                AND `rms`.`goals` = best_runs.`maxGoals`
+                AND `rms`.`skips` = best_runs.`minSkips`
+                AND `rms`.`timeSurvived` = best_runs.`maxTimeSurvived`
+                ORDER BY `rms`.`goals` DESC, `rms`.`skips` ASC, `rms`.`timeSurvived` DESC;
+            ";
         }
-
-        // Prepare the SQL query
-        $sql = "SELECT `rms`.`accountId`, `rms`.`id`, `rms`.`objective`, `rms`.`submitTime`, MAX(`rms`.`goals`) as goals, `rms`.`skips`, `rms`.`timeSurvived`, `rms`.`videoLink`, `players`.`displayName` FROM `rms` INNER JOIN `players` ON `rms`.`accountId` = `players`.`accountId`".$whereSQL." GROUP BY `rms`.`accountId` ORDER BY `goals` DESC, `rms`.`skips` DESC";
 
         // Prepare the statement
         if ($stmt = $conn->prepare($sql)) {
             if ($time !== 'all') {
-                $stmt->bind_param("si", $objective, $time);
+                $stmt->bind_param("sii", $objective, $time, $time);
             } else {
                 $stmt->bind_param("s", $objective);
             }
