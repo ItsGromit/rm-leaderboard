@@ -65,6 +65,12 @@
             <!-- space for icon links -->
           </div>
         </div>
+        <div class="flex items-center justify-between md:w-1/8 mt-2 md:mt-0 self-end">
+          <span v-if="item.videoLink"><a :href="item.videoLink" target="_blank">   <v-icon name="fa-play-circle" fill="gold" /></a></span>
+          <div class="flex-shrink-0 w-1/12 items-center justify-end hidden md:flex">
+            <!-- space for icon links -->
+          </div>
+        </div>
       </div>
     </div>
     

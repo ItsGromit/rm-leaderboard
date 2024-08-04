@@ -7,7 +7,7 @@ export interface RecordDataRMC {
     goals: number;
     belowGoals: number;
     skips?: number;
-    verified: number;
+    videoLink?: string;
 }
 
 export interface RecordDataRMS {
@@ -18,4 +18,5 @@ export interface RecordDataRMS {
     goals: number;
     skips: number;
     timeSurvived: number;
+    videoLink?: string;
 }
