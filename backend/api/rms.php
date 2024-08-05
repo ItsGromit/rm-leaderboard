@@ -28,14 +28,12 @@ switch ($method) {
                 FROM `rms`
                 INNER JOIN `players` ON `rms`.`accountId` = `players`.`accountId`
                 INNER JOIN (
-                    SELECT `accountId`, MAX(`goals`) AS maxGoals, MIN(`skips`) AS minSkips, MAX(`timeSurvived`) AS maxTimeSurvived
+                    SELECT `accountId`, MAX(`goals`) AS maxGoals
                     FROM `rms`
                     WHERE `objective` = ? AND YEAR(`submitTime`) = ?
                     GROUP BY `accountId`
                 ) AS best_runs ON `rms`.`accountId` = best_runs.`accountId`
                 AND `rms`.`goals` = best_runs.`maxGoals`
-                AND `rms`.`skips` = best_runs.`minSkips`
-                AND `rms`.`timeSurvived` = best_runs.`maxTimeSurvived`
                 WHERE YEAR(`rms`.`submitTime`) = ?
                 ORDER BY `rms`.`goals` DESC, `rms`.`skips` ASC, `rms`.`timeSurvived` DESC;
             ";
@@ -46,14 +44,12 @@ switch ($method) {
                 FROM `rms`
                 INNER JOIN `players` ON `rms`.`accountId` = `players`.`accountId`
                 INNER JOIN (
-                    SELECT `accountId`, MAX(`goals`) AS maxGoals, MIN(`skips`) AS minSkips, MAX(`timeSurvived`) AS maxTimeSurvived
+                    SELECT `accountId`, MAX(`goals`) AS maxGoals
                     FROM `rms`
                     WHERE `objective` = ?
                     GROUP BY `accountId`
                 ) AS best_runs ON `rms`.`accountId` = best_runs.`accountId`
                 AND `rms`.`goals` = best_runs.`maxGoals`
-                AND `rms`.`skips` = best_runs.`minSkips`
-                AND `rms`.`timeSurvived` = best_runs.`maxTimeSurvived`
                 ORDER BY `rms`.`goals` DESC, `rms`.`skips` ASC, `rms`.`timeSurvived` DESC;
             ";
         }
