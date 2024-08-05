@@ -21,18 +21,45 @@ switch ($method) {
         $time = isset($_GET['year']) ? $_GET['year'] : 'all';
         $objective = isset($_GET['objective']) ? $_GET['objective'] : 'author';
 
-        $whereSQL = " WHERE `rmc`.`objective` = ?";
         if ($time !== 'all') {
-            $whereSQL .= " AND YEAR(`submitTime`) = ?";
+            // Query for a specific year
+            $sql = "
+                SELECT rmc.*, players.displayName
+                FROM `rmc`
+                INNER JOIN `players` ON `rmc`.`accountId` = `players`.`accountId`
+                INNER JOIN (
+                    SELECT `accountId`, MAX(`goals`) AS maxGoals, MAX(`belowGoals`) AS maxBelowGoals
+                    FROM `rmc`
+                    WHERE `objective` = ? AND YEAR(`submitTime`) = ?
+                    GROUP BY `accountId`
+                ) AS best_runs ON `rmc`.`accountId` = best_runs.`accountId`
+                AND `rmc`.`goals` = best_runs.`maxGoals`
+                AND `rmc`.`belowGoals` = best_runs.`maxBelowGoals`
+                WHERE YEAR(`rmc`.`submitTime`) = ?
+                ORDER BY `rmc`.`goals` DESC, `rmc`.`belowGoals` DESC;
+            ";
+        } else {
+            // Query across all years
+            $sql = "
+                SELECT rmc.*, players.displayName
+                FROM `rmc`
+                INNER JOIN `players` ON `rmc`.`accountId` = `players`.`accountId`
+                INNER JOIN (
+                    SELECT `accountId`, MAX(`goals`) AS maxGoals, MAX(`belowGoals`) AS maxBelowGoals
+                    FROM `rmc`
+                    WHERE `objective` = ?
+                    GROUP BY `accountId`
+                ) AS best_runs ON `rmc`.`accountId` = best_runs.`accountId`
+                AND `rmc`.`goals` = best_runs.`maxGoals`
+                AND `rmc`.`belowGoals` = best_runs.`maxBelowGoals`
+                ORDER BY `rmc`.`goals` DESC, `rmc`.`belowGoals` DESC;
+            ";
         }
-
-        // Prepare the SQL query
-        $sql = "SELECT `rmc`.`accountId`, `rmc`.`id`, `rmc`.`objective`, `rmc`.`submitTime`, MAX(`rmc`.`goals`) as goals, `rmc`.`belowGoals`, `rmc`.`videoLink`, `players`.`displayName` FROM `rmc` INNER JOIN `players` ON `rmc`.`accountId` = `players`.`accountId`".$whereSQL." GROUP BY `rmc`.`accountId` ORDER BY `goals` DESC, `rmc`.`belowGoals` DESC";
 
         // Prepare the statement
         if ($stmt = $conn->prepare($sql)) {
             if ($time !== 'all') {
-                $stmt->bind_param("si", $objective, $time);
+                $stmt->bind_param("sii", $objective, $time, $time);
             } else {
                 $stmt->bind_param("s", $objective);
             }
@@ -56,7 +83,6 @@ switch ($method) {
         break;
 
     case 'POST':
-
         // Check player token (in Authorization header)
         $headers = getallheaders();
         if (!array_key_exists('Authorization', $headers)) {
