@@ -43,8 +43,8 @@ if ($token === $openplanetSecret) {
     $tmioData = json_decode($tmioResp, true);
 
     $openplanetData = [
-        'player_id' => $playerId,
-        'player_name' => $tmioData['displayname']
+        'account_id' => $playerId,
+        'display_name' => $tmioData['displayname']
     ];
 } else {
     // Verify the token with Openplanet
