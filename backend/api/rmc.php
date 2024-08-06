@@ -28,13 +28,12 @@ switch ($method) {
                 FROM `rmc`
                 INNER JOIN `players` ON `rmc`.`accountId` = `players`.`accountId`
                 INNER JOIN (
-                    SELECT `accountId`, MAX(`goals`) AS maxGoals, MAX(`belowGoals`) AS maxBelowGoals
+                    SELECT `accountId`, MAX(`goals`) AS maxGoals
                     FROM `rmc`
                     WHERE `objective` = ? AND YEAR(`submitTime`) = ?
                     GROUP BY `accountId`
                 ) AS best_runs ON `rmc`.`accountId` = best_runs.`accountId`
                 AND `rmc`.`goals` = best_runs.`maxGoals`
-                AND `rmc`.`belowGoals` = best_runs.`maxBelowGoals`
                 WHERE YEAR(`rmc`.`submitTime`) = ?
                 ORDER BY `rmc`.`goals` DESC, `rmc`.`belowGoals` DESC;
             ";
@@ -45,13 +44,12 @@ switch ($method) {
                 FROM `rmc`
                 INNER JOIN `players` ON `rmc`.`accountId` = `players`.`accountId`
                 INNER JOIN (
-                    SELECT `accountId`, MAX(`goals`) AS maxGoals, MAX(`belowGoals`) AS maxBelowGoals
+                    SELECT `accountId`, MAX(`goals`) AS maxGoals
                     FROM `rmc`
                     WHERE `objective` = ?
                     GROUP BY `accountId`
                 ) AS best_runs ON `rmc`.`accountId` = best_runs.`accountId`
                 AND `rmc`.`goals` = best_runs.`maxGoals`
-                AND `rmc`.`belowGoals` = best_runs.`maxBelowGoals`
                 ORDER BY `rmc`.`goals` DESC, `rmc`.`belowGoals` DESC;
             ";
         }
