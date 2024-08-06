@@ -114,6 +114,12 @@ switch ($method) {
             die();
         }
 
+        if ($player["banned"] == 1) {
+            http_response_code(403);
+            echo json_encode(["success" => false, "message" => "You've been banned from posting to the leaderboard"]);
+            break;
+        }
+
         $data = json_decode(file_get_contents('php://input'), true);
         $accountId = $player['accountId'];
         $objective = isset($data['objective']) ? $data['objective'] : "author";
