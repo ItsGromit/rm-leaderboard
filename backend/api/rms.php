@@ -86,13 +86,13 @@ switch ($method) {
         if (!array_key_exists('Authorization', $headers)) {
             echo json_encode(["success" => false, "error" => "Authorization header is missing"]);
             $conn->close();
-            break;
+            die();
         }
 
         if (substr($headers['Authorization'], 0, 6) !== 'Token ') {
             echo json_encode(["success" => false, "error" => "Token keyword is missing"]);
             $conn->close();
-            break;
+            die();
         }
 
         // Get Player Token
@@ -117,7 +117,8 @@ switch ($method) {
         if ($player["banned"] == 1) {
             http_response_code(403);
             echo json_encode(["success" => false, "message" => "You've been banned from posting to the leaderboard"]);
-            break;
+            $conn->close();
+            die();
         }
 
         $data = json_decode(file_get_contents('php://input'), true);
@@ -127,7 +128,8 @@ switch ($method) {
         if (!isset($data['goal']) || !isset($data['skips']) || !isset($data['time_survived'])) {
             http_response_code(403);
             echo json_encode(["success" => false, "message" => "goal, skips and time_survived must be indicated in the body"]);
-            break;
+            $conn->close();
+            die();
         }
 
         $goals = $data['goal'];
@@ -138,7 +140,7 @@ switch ($method) {
         $stmt->bind_param("ssiii", $accountId, $objective, $goals, $skips, $timeSurvived);
 
         if ($stmt->execute()) {
-            echo json_encode(["success" => true, "message" => "Record uploaded successfully to the leaderboard"]);
+            echo json_encode(["success" => true, "message" => "RMS run was uploaded successfully to the leaderboard"]);
         } else {
             http_response_code(500);
             echo json_encode(["success" => false, "message" => "Error: " . $stmt->error]);
@@ -152,6 +154,6 @@ switch ($method) {
         http_response_code(405);
         echo json_encode(["success" => false, "message" => "Method not allowed"]);
         $conn->close();
-        break;
+        die();
 }
 ?>
