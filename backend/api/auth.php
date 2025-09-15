@@ -56,6 +56,12 @@ $token         = $data['token'] ?? null;
 $playerId      = $data['player_id'] ?? null;
 $pluginVersion = $data['plugin_version'] ?? null;
 
+
+$token = isset($token) ? trim((string)$token) : null;
+if ($token && str_starts_with($token, 'Bearer ')) {
+    $token = substr($token, 7); // "Bearer " removed
+}
+
 if (!$token || !$playerId) {
     http_response_code(400);
     echo json_encode(["success" => false, "message" => "Missing required fields: token, player_id"]);
@@ -80,23 +86,25 @@ if ($token === $openplanetSecret) {
         'display_name' => $tmioData['displayname'] ?? "Unknown"
     ];
 } else {
-    // Verify token via Openplanet
+    // Verify token via Openplanet (JSON instead of x-www-form-urlencoded)
     $openplanetUrl = "https://openplanet.dev/api/auth/validate";
-    $postdata = http_build_query([
-        'token'  => $token,
-        'secret' => $openplanetSecret
-    ]);
+    $payload = json_encode([
+        'token'  => $token,            // no "Bearer "
+        'secret' => $openplanetSecret,
+    ], JSON_UNESCAPED_SLASHES);
+
     $options = [
         'http' => [
             'method'  => 'POST',
             'header'  =>
-                "Content-Type: application/x-www-form-urlencoded\r\n" .
+                "Content-Type: application/json\r\n" .
                 "User-Agent: PHP/".phpversion()." RMC_API/1.0 (Greep & FlinkTM)\r\n",
-            'content' => $postdata,
+            'content' => $payload,
             'timeout' => 5,
-            'ignore_errors' => true
+            'ignore_errors' => true,
         ]
     ];
+
     $context = stream_context_create($options);
     $openplanetResponse = @file_get_contents($openplanetUrl, false, $context);
     if ($openplanetResponse === false) {
